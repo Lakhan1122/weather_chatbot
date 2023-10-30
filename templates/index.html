@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Weather Chat</title>
+    <!-- <link rel="stylesheet" type="text/css" href="styles.css"> -->
+    <style>
+         body {
+            font-family: Arial, sans-serif;
+            background-color: #333; /* Dark background color */
+            color: #fff; /* Text color */
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #222; /* Dark container background */
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+
+        h1 {
+            text-align: center;
+            color: #fff;
+            font-size: 24px; /* Increase title font size */
+        }
+
+        .chat {
+            border: 1px solid #444; /* Darker border */
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .messages {
+            height: 400px; /* Increase chat height */
+            overflow-y: scroll;
+            border: 1px solid #444; /* Darker border */
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px; /* Add margin at the bottom */
+        }
+
+        input[type="text"] {
+            width: 80%;
+            padding: 10px; /* Increase input padding */
+            border: 1px solid #444; /* Darker border */
+            border-radius: 5px;
+            color: #333; /* Darker text color for input */
+        }
+
+        button {
+            background-color: #555; /* Darker button background */
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px; /* Increase button padding */
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #777; /* Hover color */
+        }
+
+        .message {
+            padding: 5px;
+            margin: 5px;
+        }
+
+        .user {
+            background-color: #555;
+        }
+
+        .assistant {
+            background-color: #333;
+        }
+
+        .message.user {
+            text-align: right;
+        }
+
+        .message.assistant {
+            text-align: left;
+        }
+
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Weather ChatBot</h1>
+        <div class="chat">
+            <div class="messages" id="messages">
+                <!-- Chat messages will be displayed here -->
+            </div>
+            <input type="text" id="userMessage" placeholder="Type a message...">
+            <button id="sendMessage">Send</button>
+        </div>
+    </div>
+
+    <script >
+        const messagesDiv = document.getElementById('messages');
+const userMessageInput = document.getElementById('userMessage');
+const sendMessageButton = document.getElementById('sendMessage');
+
+sendMessageButton.addEventListener('click', () => {
+    const userMessage = userMessageInput.value;
+
+    if (userMessage) {
+        appendMessage('user', userMessage);
+        userMessageInput.value = '';
+
+        // Send the user's message to the Flask backend using an HTTP request
+        fetch('/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ content: userMessage }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data); 
+            const assistantMessage = data.message;
+            appendMessage('assistant', assistantMessage);
+        })
+        .catch(error => console.error('Error:', error));
+    }
+});
+
+function appendMessage(role, content) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${role}`;
+    messageDiv.innerText = content;
+    messagesDiv.appendChild(messageDiv);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+    </script>
+</body>
+</html>
